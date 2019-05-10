@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+clock y;
+chan Press;</declaration>
+	<template>
+		<name>Drone1</name>
+		<declaration>clock t1;</declaration>
+		<location id="id0" x="-212" y="-110">
+			<name x="-222" y="-144">b</name>
+			<label kind="invariant" x="-222" y="-93">y&lt;=8</label>
+		</location>
+		<location id="id1" x="0" y="-110">
+			<name x="-9" y="-153">d</name>
+		</location>
+		<location id="id2" x="-127" y="-110">
+			<name x="-144" y="-153">c</name>
+			<label kind="invariant" x="-137" y="-93">y&lt;=12</label>
+		</location>
+		<location id="id3" x="-331" y="-110">
+			<name x="-340" y="-144">a</name>
+		</location>
+		<init ref="id3"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-194" y="-144">y&gt;=8</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-297" y="-144">y&gt;5</label>
+			<label kind="synchronisation" x="-297" y="-161">Press?</label>
+			<label kind="assignment" x="-313" y="-110">y=2</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-85" y="-144">y&lt;20</label>
+			<label kind="synchronisation" x="-85" y="-170">Press?</label>
+		</transition>
+	</template>
+	<template>
+		<name>Input</name>
+		<location id="id4" x="0" y="0">
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-34" y="-68">Press!</label>
+			<nail x="-51" y="-51"/>
+			<nail x="34" y="-51"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Sys1= Drone1();
+Inp1 = Input();
+
+// List one or more processes to be composed into a system.
+system Sys1, Inp1;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Sys1.d and Sys1.t1 &gt;= 18
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Sys1.d imply Sys1.t1 &gt;= 18
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Sys1.d imply Sys1.t1 &gt;= 11
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Sys1.d imply Sys1.t1 &gt;= 12
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Sys1.c and Sys1.t1 &lt; 5
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Sys1.c and Sys1.t1 &lt; 15
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] Sys1.c imply Sys1.t1 &lt; 15
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
