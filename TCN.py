@@ -50,40 +50,33 @@ class TCN:
         return sort.index(event1) <= sort.index(event2)
 
 
-    def getFullPath(self, source, dest):
-        path = source
-        node = source
+    def getPath(self, source, dest):
+        path = Path(source, dest)
 
-        while node != dest:
-            if self.events[node] == []:
-                return None
+        n = source
 
-            for edge in self.events[node]:
-                if edge.isPrim:
-                    node = edge.dest
-                    path = path + "->" + edge.dest
-
-
-
-                
+        while n != dest:
+            path.addNode(n)
+            n = self.next.get((n, dest))
 
 
         return path
 
 
 
-    def expandPaths(self, paths):
-        for source in self.events.keys():
-            for dest in self.events.keys():
-                paths[(source, dest)] = self.getFullPath(source, dest)
+    def convertToTAPath(self, source, dest):
+        #for source in self.events.keys():
+            #for dest in self.events.keys():
+                #paths[(source, dest)] = self.getFullPath(source, dest)
 
-        return paths
+        return None
 
 
     def findMinimalDistances(self):
-        paths = {}
+        next = {}
         dist = {}
 
+        # initialize the distance matrix
         for source in self.events.keys():
             for dest in self.events.keys():
                 if source == dest:
@@ -91,9 +84,9 @@ class TCN:
                 else:
                     dist[(source, dest)] = Constraint.inf
 
-                paths[(source, dest)] = source + "->" + dest
-                paths[(dest, source)] = dest + "->" + source
+                next[(source, dest)] = dest
 
+        # add the weighted distances from the TCN
         for source in self.events.keys():
             edges = self.events[source]
             for edge in edges:
@@ -113,16 +106,18 @@ class TCN:
                 for dest in self.events.keys():
                     if dist[(source, mid)] + dist[(mid, dest)] < dist[(source, dest)]:
                         dist[(source, dest)] = dist[(source, mid)] + dist[(mid, dest)]
-                        paths[(source, dest)] = "->".join(paths[(source, mid)].split("->")[:-1]) + "->" + paths[(mid, dest)]
-
+                        next[(source, dest)] = next[(source, mid)]
 
                     #check for negative cycles
+                    # add in negative cycle return in bad case
                     if source == dest and dist[(source, dest)] < 0:
                         return None
 
-        paths = self.expandPaths(paths)
+        print next
 
-        self.paths = paths
+        #paths = self.expandPaths(paths)
+
+        self.next = next
 
 
         return dist
@@ -186,7 +181,7 @@ class TCN:
             exists = eval(str(lower) + expr + str(time))
 
             if exists:
-                return True, self.paths[(source, dest)]
+                return True, self.getPath(source, dest)
 
         elif expr == ">" or expr == ">=":
             if upper == Constraint.inf:
@@ -195,7 +190,7 @@ class TCN:
                 exists = eval(str(upper) + expr + str(time))
 
             if exists:
-                return True, self.paths[(source, dest)]
+                return True, self.getPath(source, dest)
 
         return False, None
 
@@ -222,13 +217,13 @@ class TCN:
                 exists = eval(str(upper) + expr + str(time))
 
             if exists:
-                return True, self.paths[(source, dest)]
+                return True, self.getPath(source, dest)
 
         elif expr == ">" or expr == ">=":
             exists = eval(str(lower) + expr + str(time))
 
             if exists:
-                return True, self.paths[(source, dest)]
+                return True, self.getPath(source, dest)
 
         return False, None
 
@@ -282,6 +277,25 @@ class Edge:
 
     def __str__(self):
         return "(" + self.source + "->" + self.dest + ", " + str(self.constr) + ")"
+
+    def __repr__(self):
+        return str(self)
+
+
+class Path:
+    def __init__(self, source, dest):
+        self.source = source
+        self.dest = dest
+        self.path = [source, dest]
+
+    def addNode(self, node):
+        if node != self.source and node != self.dest:
+            self.path.pop()
+            self.path.append(node)
+            self.path.append(self.dest)
+
+    def __str__(self):
+        return "->".join(self.path)
 
     def __repr__(self):
         return str(self)

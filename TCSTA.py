@@ -64,6 +64,7 @@ def main():
     print TA
 
     TCN = TA.toTCN()
+    print ( TCN )
     print ( TCN.findMinimalNetwork() )
     print ( TCN.pathExists("a", "d", ">=", 18) )
     print ( TCN.forAllPaths("a", "d", ">=", 18) )
